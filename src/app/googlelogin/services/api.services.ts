@@ -46,7 +46,7 @@ saveSalesInvoice(invoice:any)
 {
   const headers = this.getAuthHeaders();
   console.log(JSON.stringify(invoice));
-  return this.http.post(`${this.baseUrl}/sales/savedatasales`,invoice, { headers });
+  return this.http.post(`${this.baseUrl}/Sales/savedatasales`,invoice, { headers });
 }
 
 }
