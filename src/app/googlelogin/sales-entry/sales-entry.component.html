@@ -1,0 +1,213 @@
+<div class="container py-4" *ngIf="!showInvoice">
+  <!-- Customer Info -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">Customer Information</h4>
+    </div>
+    <div class="card-body">
+      <form class="row g-3">
+        <div class="col-md-6">
+          <label for="customerName" class="form-label">Name</label>
+          <input
+            type="text"
+            id="customerName"
+            class="form-control"
+            [(ngModel)]="customerName"
+            name="customerName"
+            placeholder="Customer name"
+          />
+        </div>
+        <div class="col-md-6">
+          <label for="customerContact" class="form-label">Contact</label>
+          <input
+            type="text"
+            id="customerContact"
+            class="form-control"
+            [(ngModel)]="customerContact"
+            name="customerContact"
+            placeholder="Phone or Email"
+          />
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Barcode Entry -->
+  <div class="card shadow-sm">
+    <div class="card-header bg-success text-white">
+      <h4 class="mb-0">Sales Entry</h4>
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="addProduct()" class="row g-3 align-items-end">
+        <div class="col-md-6">
+          <label for="barcode" class="form-label">Scan Barcode</label>
+          <input
+            type="text"
+            id="barcode"
+            class="form-control"
+            [(ngModel)]="barcode"
+            name="barcode"
+            [disabled]="isLoading"
+            placeholder="Enter or scan barcode"
+            autofocus
+          />
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-success" type="submit" [disabled]="isLoading">
+            <span *ngIf="!isLoading">Add</span>
+            <span
+              *ngIf="isLoading"
+              class="spinner-border spinner-border-sm"
+            ></span>
+          </button>
+        </div>
+        <div class="col-12">
+          <div *ngIf="errorMessage" class="alert alert-danger">
+            {{ errorMessage }}
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Cart Table -->
+  <div class="card shadow-sm mt-4">
+    <div
+      class="card-header bg-secondary text-white d-flex justify-content-between"
+    >
+      <h5 class="mb-0">Cart</h5>
+      <button
+        class="btn btn-sm btn-outline-light"
+        (click)="clearCart()"
+        *ngIf="cart.length"
+      >
+        Clear
+      </button>
+    </div>
+    <div class="card-body p-0">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Barcode</th>
+            <th class="text-end">Price</th>
+            <th class="text-center">Qty</th>
+            <th class="text-end">Subtotal</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of cart; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ item.productName }}</td>
+            <td>{{ item.barcode }}</td>
+            <td class="text-end">{{ item.price | currency:'EUR':'symbol':'1.2-2' }}</td>
+            <td class="text-center">
+              <input
+                type="number"
+                [(ngModel)]="item.quantity"
+                name="qty{{ i }}"
+                (change)="saveCart()"
+                class="form-control form-control-sm text-center"
+                min="1"
+                style="width: 70px"
+              />
+            </td>
+            <td class="text-end">
+              {{ item.price * item.quantity | currency:'EUR':'symbol':'1.2-2' }}
+            </td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-danger" (click)="removeItem(i)">
+                Remove
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="cart.length === 0">
+            <td colspan="7" class="text-center text-muted py-3">
+              No products added.
+            </td>
+          </tr>
+        </tbody>
+        <tfoot *ngIf="cart.length > 0">
+          <tr>
+            <th colspan="5" class="text-end">Total:</th>
+            <th class="text-end">{{ total | currency:'EUR':'symbol':'1.2-2' }}</th>
+            <th></th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <div class="card-footer text-end" *ngIf="cart.length">
+      <button class="btn btn-primary" (click)="generateInvoice()">
+        Generate Invoice
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Invoice Preview -->
+<div class="container py-4" *ngIf="showInvoice">
+  <div class="card shadow-sm p-4" id="invoice">
+    <div
+      class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3"
+    >
+      <div>
+        <h2 class="text-primary fw-bold">My Store</h2>
+        <p class="mb-0 small text-muted">
+          www.mystore.com | PhoneNumber
+        </p>
+      </div>
+      <div>
+        <h5>Invoice #{{ invoiceNumber }}</h5>
+        <p class="mb-0 small">
+          <strong>Date:</strong> {{ currentDate | date: 'mediumDate' }}
+        </p>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <h6 class="fw-bold">Bill To:</h6>
+      <p class="mb-0">{{ customerName }}</p>
+      <p class="mb-0">{{ customerContact }}</p>
+    </div>
+
+    <table class="table table-striped">
+      <thead class="table-primary">
+        <tr>
+          <th>#</th>
+          <th>Product</th>
+          <th class="text-end">Price</th>
+          <th class="text-center">Qty</th>
+          <th class="text-end">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of cart; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ item.productName }}</td>
+          <td class="text-end">{{ item.price | currency:'EUR':'symbol':'1.2-2' }}</td>
+          <td class="text-center">{{ item.quantity }}</td>
+          <td class="text-end">
+            {{ item.price * item.quantity | currency:'EUR':'symbol':'1.2-2' }}
+          </td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th colspan="4" class="text-end">Total:</th>
+          <th class="text-end">{{ total | currency:'EUR':'symbol':'1.2-2' }}</th>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="text-end mt-4 d-print-none">
+      <button class="btn btn-secondary me-2" (click)="clearCart()">
+        New Sale
+      </button>
+      <button class="btn btn-primary" (click)="exportPDF()">
+        Export PDF
+      </button>
+    </div>
+  </div>
+</div>

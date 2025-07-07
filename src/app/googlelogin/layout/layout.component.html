@@ -1,0 +1,66 @@
+<div *ngIf="email">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary bg-gradient shadow-sm py-3 px-4">
+    <a class="navbar-brand fw-bold text-white" routerLink="/dashboard">
+      <i class="bi bi-bar-chart-line me-2"></i> Sales Application
+    </a>
+
+    <!-- Mobile Toggler -->
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#mainNavbar"
+      aria-controls="mainNavbar"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Collapsible Content -->
+    <div class="collapse navbar-collapse" id="mainNavbar">
+      <!-- Left Side: Navigation Links -->
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
+        <li class="nav-item">
+          <a class="nav-link text-white" routerLink="/profile">
+            <i class="bi bi-person-circle me-1"></i> My Profile
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" routerLink="/salesentry">
+            <i class="bi bi-clipboard-data me-1"></i> Sales Entry
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" routerLink="/dashboard">
+            <i class="bi bi-cart-plus me-1"></i> Purchase Entry
+          </a>
+        </li>
+      </ul>
+
+      <!-- Right Side: User Info and Logout -->
+      <div class="d-flex align-items-center">
+        <div class="text-white text-end me-3 d-none d-lg-block">
+          <div class="fw-semibold">{{ name }}</div>
+          <small class="text-light">{{ email }}</small>
+        </div>
+
+        <img
+          *ngIf="photoUrl"
+          [src]="photoUrl"
+          alt="Profile"
+          class="rounded-circle border border-white me-3"
+          width="42"
+          height="42"
+          style="object-fit: cover;"
+        />
+
+        <button class="btn btn-outline-light btn-sm" (click)="logout()">
+          <i class="bi bi-box-arrow-right me-1"></i> Logout
+        </button>
+      </div>
+    </div>
+  </nav>
+</div>
+
+<router-outlet></router-outlet>
